@@ -21,6 +21,18 @@ pip install json-merger
 
 ## Usage
 
+## Input Requirements
+
+The `merge` function accepts a list of Python dictionaries:
+
+```python
+# Valid usage
+merge([{"a": 1}, {"b": 2}])
+
+# Invalid usage (will raise TypeError)
+merge([{"a": 1}, [1, 2, 3]])  # Second item is not a dict
+merge("not a list")            # Not a list at all
+
 ### Basic Merge
 ```python
 import json_merger
@@ -53,6 +65,32 @@ result = json_merger.merge(base, update)
 #     "preferences": {"theme": "dark"}
 #   }
 # }
+```
+
+## Merging Multiple Objects
+
+Merge any number of JSON objects sequentially:
+
+```python
+result = merge(
+    {"base": 1},
+    {"base": 2, "new!": "value"},
+    {"base--": None, "final": True}
+)
+# Result: {'new': 'value', 'final': True}
+```
+
+### Batch Processing Example
+```python
+configs = [
+    {"defaults": {"timeout": 30}},
+    {"defaults": {"retries": 3}},
+    {"defaults!": {"cache": "enabled"}},
+    {"defaults--": {}, "environment": "prod"}
+]
+
+final_config = merge(*configs)
+# Result: {'environment': 'prod'}
 ```
 
 ### Array Replacement

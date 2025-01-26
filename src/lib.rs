@@ -1,13 +1,24 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use pyo3::exceptions::PyTypeError;
+use pyo3::PyAny;
 use serde_json::{Map, Value};
 
 #[pyfunction]
-fn merge(a: &PyAny, b: &PyAny) -> PyResult<PyObject> {
-    let py = a.py();
-    let a_json = py_object_to_json(a)?;
-    let b_json = py_object_to_json(b)?;
-    let merged = merge_json_objects(&a_json, &b_json);
+fn merge(objs: Vec<&PyAny>) -> PyResult<PyObject> {
+    let py = objs[0].py();
+    let mut merged = Value::Object(Map::new());
+
+    for obj in objs {
+        // Validate input is a dictionary
+        if !obj.is_instance_of::<PyDict>() {
+            return Err(PyTypeError::new_err("All inputs must be dictionaries"));
+        }
+
+        let current = py_object_to_json(obj)?;
+        merged = merge_json_objects(&merged, &current);
+    }
+
     json_to_py_object(py, &merged)
 }
 
@@ -149,6 +160,33 @@ mod tests {
         let b = json!({"b": 3, "c": 4});
         let merged = merge_json_objects(&a, &b);
         assert_eq!(merged, json!({"a": 1, "b": 3, "c": 4}));
+    }
+
+    #[test]
+    fn test_multiple_objects() {
+        let objs = vec![
+            json!({"a": 1}),
+            json!({"b": 2, "a!": 3}),
+            json!({"c": 4, "b--": null}),
+        ];
+        let merged = objs.into_iter().fold(Value::Null, |acc, x| merge_json_objects(&acc, &x));
+        assert_eq!(merged, json!({"a": 3, "c": 4}));
+    }
+
+    #[test]
+    fn test_empty_input() {
+        assert_eq!(merge_json_objects(&Value::Null, &Value::Null), Value::Null);
+    }
+
+    #[test]
+    fn test_three_level_merge() {
+        let objs = vec![
+            json!({"config": {"debug": true}}),
+            json!({"config": {"port": 8080}}),
+            json!({"config!": {"production": true}}),
+        ];
+        let merged = objs.into_iter().fold(Value::Null, |acc, x| merge_json_objects(&acc, &x));
+        assert_eq!(merged, json!({"config": {"production": true}}));
     }
 
     #[test]
