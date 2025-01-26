@@ -1,5 +1,5 @@
 [package]
-name = "json-merger"
+name = "json_merger"  # Rust crate name (underscores)
 version = "0.1.0"
 authors = ["Nic Wolff <nwolff@hearst.com>"]
 edition = "2021"
