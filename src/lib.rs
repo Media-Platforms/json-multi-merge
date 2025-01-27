@@ -1,15 +1,15 @@
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::{PyDict, PyList, PyTuple};
 use pyo3::exceptions::PyTypeError;
 use pyo3::PyAny;
 use serde_json::{Map, Value};
 
-#[pyfunction]
-fn merge(objs: Vec<&PyAny>) -> PyResult<PyObject> {
-    let py = objs[0].py();
+#[pyfunction(signature = (*objs))]
+fn merge(objs: &PyTuple) -> PyResult<PyObject> {
+    let py = objs.get_item(0)?.py();
     let mut merged = Value::Object(Map::new());
 
-    for obj in objs {
+    for obj in objs.iter() {
         // Validate input is a dictionary
         if !obj.is_instance_of::<PyDict>() {
             return Err(PyTypeError::new_err("All inputs must be dictionaries"));
@@ -164,14 +164,20 @@ mod tests {
     }
 
     #[test]
-    fn test_multiple_objects() {
-        let objs = vec![
-            json!({"a": 1}),
-            json!({"b": 2, "a!": 3}),
-            json!({"c": 4, "b--": null}),
-        ];
-        let merged = objs.into_iter().fold(Value::Null, |acc, x| merge_json_objects(&acc, &x));
-        assert_eq!(merged, json!({"a": 3, "c": 4}));
+    fn test_variadic_merge() {
+        let a = json!({"a": 1});
+        let b = json!({"b": 2});
+        let c = json!({"c": 3});
+
+        let merged = merge_json_objects(&merge_json_objects(&a, &b), &c);
+        assert_eq!(merged, json!({"a": 1, "b": 2, "c": 3}));
+    }
+
+    #[test]
+    fn test_single_argument() {
+        let a = json!({"a": 1});
+        let merged = merge_json_objects(&Value::Object(Map::new()), &a);
+        assert_eq!(merged, a);
     }
 
     #[test]

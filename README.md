@@ -22,16 +22,23 @@ pip install json-multi-merge
 
 ## Usage
 
-## Input Requirements
+## Variadic Input
 
-The `merge` function accepts a list of Python dictionaries:
+The `merge` function now accepts any number of dictionary arguments:
 
 ```python
-# Valid usage
-merge([{"a": 1}, {"b": 2}])
+# Single dictionary
+merge({"a": 1})
+
+# Multiple dictionaries
+merge({"a": 1}, {"b": 2}, {"c": 3})
+
+# From a list (using unpacking)
+dicts = [{"a": 1}, {"b": 2}]
+merge(*dicts)
 
 # Invalid usage (will raise TypeError)
-merge([{"a": 1}, [1, 2, 3]])  # Second item is not a dict
+merge({"a": 1}, [1, 2, 3])  # Second item is not a dict
 merge("not a list")            # Not a list at all
 
 ### Basic Merge

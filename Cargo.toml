@@ -1,6 +1,6 @@
 [package]
-version = "0.1.0"
 name = "json_multi_merge"  # Rust crate name (underscores)
+version = "0.2.0"
 authors = ["Nic Wolff <nwolff@hearst.com>"]
 edition = "2021"
 license = "MIT"

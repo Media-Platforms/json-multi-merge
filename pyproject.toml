@@ -3,8 +3,8 @@ requires = ["maturin>=1.4,<2.0"]
 build-backend = "maturin"
 
 [project]
-version = "0.1.0"
 name = "json-multi-merge"  # PyPI package name (hyphen)
+version = "0.2.0"
 description = "Rust-powered JSON merging with custom modifiers"
 readme = "README.md"
 requires-python = ">=3.8"
