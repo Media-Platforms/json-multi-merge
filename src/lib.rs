@@ -210,7 +210,7 @@ mod tests {
                 "address": {"city": "Paris", "country": "France"}
             }
         });
-        assert_eq!(merge(&a, &b), expected);
+        assert_eq!(merge_json_objects(&a, &b), expected);
     }
 
     #[test]
@@ -250,7 +250,7 @@ mod tests {
                 "plugins": ["advanced"]
             }
         });
-        assert_eq!(merge(&a, &b), expected);
+        assert_eq!(merge_json_objects(&a, &b), expected);
     }
 
     #[test]
