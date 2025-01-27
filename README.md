@@ -1,6 +1,7 @@
-# JSON Merger
+# JSON Multi Merge
 
-A high-performance JSON merging library powered by Rust, featuring advanced merge rules and key modifiers.
+A high-performance JSON merging library powered by Rust, featuring advanced merge rules and key
+modifiers.
 
 ## Features
 
@@ -16,7 +17,7 @@ A high-performance JSON merging library powered by Rust, featuring advanced merg
 ## Installation
 
 ```bash
-pip install json-merger
+pip install json-multi-merge
 ```
 
 ## Usage
@@ -35,11 +36,11 @@ merge("not a list")            # Not a list at all
 
 ### Basic Merge
 ```python
-import json_merger
+from json_multi_merge import merge
 
 a = {"name": "Alice", "age": 30}
 b = {"age": 31, "city": "Paris"}
-result = json_merger.merge(a, b)
+result = merge(a, b)
 # {'name': 'Alice', 'age': 31, 'city': 'Paris'}
 ```
 
@@ -57,7 +58,7 @@ update = {
         "preferences": {"theme": "dark"}
     }
 }
-result = json_merger.merge(base, update)
+result = merge(base, update)
 # {
 #   "user": {
 #     "name": "Alice",
@@ -97,7 +98,7 @@ final_config = merge(*configs)
 ```python
 base = {"tags": ["old"], "items": [1, 2]}
 update = {"tags": ["new"], "items!": [3, 4]}
-result = json_merger.merge(base, update)
+result = merge(base, update)
 # {"tags": ["new"], "items": [3, 4]}
 ```
 
@@ -114,7 +115,7 @@ update = {
     "plugins--": None,
     "temp_data--": {"key": "value"}
 }
-result = json_merger.merge(config, update)
+result = merge(config, update)
 # {"debug": False}
 ```
 
@@ -134,7 +135,7 @@ update = {
         "new_settings": {"cache_size": "256MB"}
     }
 }
-result = json_merger.merge(base, update)
+result = merge(base, update)
 # {
 #   "system": {
 #     "new_settings": {"cache_size": "256MB"}
@@ -146,7 +147,7 @@ result = json_merger.merge(base, update)
 ```python
 base = {"data": {"values": [1, 2, 3]}}
 update = {"data": "invalid"}
-result = json_merger.merge(base, update)
+result = merge(base, update)
 # {"data": "invalid"}
 ```
 
@@ -154,7 +155,7 @@ result = json_merger.merge(base, update)
 ```python
 base = {"user": None}
 update = {"user!": {"name": "Bob"}}
-result = json_merger.merge(base, update)
+result = merge(base, update)
 # {"user": {"name": "Bob"}}
 ```
 
@@ -180,11 +181,11 @@ The Rust implementation provides significant performance benefits for:
 # Benchmark example (1k nested objects)
 import timeit
 setup = '''
-import json_merger
+import json_multi_merge
 base = {"data": {"nested": {"value": 1}}}
 update = {"data": {"nested": {"value!": 2}}}
 '''
-print(timeit.timeit('json_merger.merge(base, update)', setup, number=10000))
+print(timeit.timeit('json_multi_merge.merge(base, update)', setup, number=10000))
 # Typical result: ~0.8 seconds (vs ~4.2 seconds for pure Python equivalent)
 ```
 

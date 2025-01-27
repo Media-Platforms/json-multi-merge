@@ -144,10 +144,11 @@ fn json_to_py_object(py: Python, value: &Value) -> PyResult<PyObject> {
 }
 
 #[pymodule]
-fn json_merger(_py: Python, m: &PyModule) -> PyResult<()> {
+fn json_multi_merge(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(merge, m)?)?;
     Ok(())
 }
+
 
 #[cfg(test)]
 mod tests {

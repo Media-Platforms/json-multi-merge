@@ -1,15 +1,15 @@
 [package]
-name = "json_merger"  # Rust crate name (underscores)
 version = "0.1.0"
+name = "json_multi_merge"  # Rust crate name (underscores)
 authors = ["Nic Wolff <nwolff@hearst.com>"]
 edition = "2021"
 license = "MIT"
 description = "Deep JSON merging with Rust-powered modifiers"
-repository = "https://github.com/Media-Platforms/json-merger"
+repository = "https://github.com/Media-Platforms/json-multi-merge"
 readme = "README.md"
 
 [lib]
-name = "json_merger"
+name = "json_multi_merge"
 path = "src/lib.rs"
 crate-type = ["cdylib"]
 
