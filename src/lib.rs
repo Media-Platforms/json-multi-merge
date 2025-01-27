@@ -91,14 +91,14 @@ fn py_object_to_json(obj: &PyAny) -> PyResult<Value> {
         Ok(Value::Array(arr))
     } else if let Ok(s) = obj.extract::<String>() {
         Ok(Value::String(s))
+    } else if let Ok(b) = obj.extract::<bool>() {
+        Ok(Value::Bool(b))
     } else if let Ok(i) = obj.extract::<i64>() {
         Ok(Value::Number(i.into()))
     } else if let Ok(f) = obj.extract::<f64>() {
         serde_json::Number::from_f64(f)
             .map(Value::Number)
             .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid float"))
-    } else if let Ok(b) = obj.extract::<bool>() {
-        Ok(Value::Bool(b))
     } else if obj.is_none() {
         Ok(Value::Null)
     } else {
