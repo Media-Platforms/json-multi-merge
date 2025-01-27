@@ -6,8 +6,12 @@ use serde_json::{Map, Value};
 
 #[pyfunction(signature = (*objs))]
 fn merge(objs: &PyTuple) -> PyResult<PyObject> {
-    let py = objs.get_item(0)?.py();
+    let py = objs.py();
     let mut merged = Value::Object(Map::new());
+
+    if objs.is_empty() {
+        return json_to_py_object(py, &merged);
+    }
 
     for obj in objs.iter() {
         // Validate input is a dictionary
