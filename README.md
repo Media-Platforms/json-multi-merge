@@ -39,8 +39,8 @@ merge(*dicts)
 
 # Invalid usage (will raise TypeError)
 merge({"a": 1}, [1, 2, 3])  # Second item is not a dict
-merge("not a list")            # Not a list at all
-
+merge("not a list")         # Not a list at all
+```
 ### Basic Merge
 ```python
 from json_multi_merge import merge
