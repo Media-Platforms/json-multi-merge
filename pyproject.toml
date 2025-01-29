@@ -1,0 +1,20 @@
+[build-system]
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "json-multi-merge"  # PyPI package name (hyphen)
+version = "0.2.2"
+description = "Rust-powered JSON merging with custom modifiers"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Nic Wolff", email = "nwolff@hearst.com" }
+]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
