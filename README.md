@@ -10,6 +10,7 @@ modifiers.
 - **Key Modifiers**:
   - `key!` - Replace value instead of merging
   - `key--` - Remove this key from the result
+  - `key-history` - Append list value instead of replacing
 - **Type Conflict Resolution**: Last object's type wins
 - **Null Handling**: Treat null as a regular value
 - **High Performance**: Rust backend for efficient deep merges
