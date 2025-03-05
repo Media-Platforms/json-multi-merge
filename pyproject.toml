@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "json-multi-merge"
-version = "0.3.0"
+version = "0.3.1"
 description = "Rust-powered JSON merging with custom modifiers"
 readme = "README.md"
 requires-python = ">=3.8"
