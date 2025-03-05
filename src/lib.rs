@@ -20,7 +20,7 @@ fn merge(objs: &PyTuple) -> PyResult<PyObject> {
         }
 
         let current = py_object_to_json(obj)?;
-        merged = merge_json_objects(&merged, &current);
+        merged = merge_json_objects(&merged, &current)?;
     }
 
     json_to_py_object(py, &merged)
@@ -31,6 +31,7 @@ enum Action {
     Omit,
     Replace,
     Merge,
+    Append,
 }
 
 fn process_key(key: &str) -> (String, Action) {
@@ -38,12 +39,14 @@ fn process_key(key: &str) -> (String, Action) {
         (key[..key.len()-2].to_string(), Action::Omit)
     } else if key.ends_with('!') {
         (key[..key.len()-1].to_string(), Action::Replace)
+    } else if key.ends_with("-history") {
+        (key.to_string(), Action::Append)
     } else {
         (key.to_string(), Action::Merge)
     }
 }
 
-fn merge_json_objects(a: &Value, b: &Value) -> Value {
+fn merge_json_objects(a: &Value, b: &Value) -> PyResult<Value> {
     // Always process b's structure even when replacing
     match b {
         Value::Object(b_obj) => {
@@ -61,20 +64,41 @@ fn merge_json_objects(a: &Value, b: &Value) -> Value {
                     },
                     Action::Replace => {
                         // Process nested modifiers in replacement
-                        let replaced = merge_json_objects(&Value::Null, b_val);
+                        let replaced = merge_json_objects(&Value::Null, b_val)?;
                         base.insert(base_key, replaced);
+                    },
+                    Action::Append => {
+                        let existing = base.get(&base_key).unwrap_or(&Value::Null);
+
+                        match (existing, b_val) {
+                            (Value::Array(existing_arr), Value::Array(new_arr)) => {
+                                let mut combined = existing_arr.clone();
+                                combined.extend(new_arr.clone());
+                                base.insert(base_key, Value::Array(combined));
+                            },
+                            (Value::Null, Value::Array(new_arr)) => {
+                                // If existing is null, just use the new array
+                                base.insert(base_key, Value::Array(new_arr.clone()));
+                            },
+                            _ => {
+                                // For -history, both values must be arrays or the target must be null
+                                return Err(PyTypeError::new_err(
+                                    "History append requires both values to be arrays"
+                                ));
+                            }
+                        }
                     },
                     Action::Merge => {
                         let existing = base.get(&base_key).unwrap_or(&Value::Null);
-                        let merged = merge_json_objects(existing, b_val);
+                        let merged = merge_json_objects(existing, b_val)?;
                         base.insert(base_key, merged);
                     }
                 }
             }
-            Value::Object(base)
+            Ok(Value::Object(base))
         },
-        Value::Array(_) => b.clone(),
-        _ => b.clone(),
+        Value::Array(_) => Ok(b.clone()),
+        _ => Ok(b.clone()),
     }
 }
 
@@ -163,7 +187,7 @@ mod tests {
     fn test_basic_merge() {
         let a = json!({"a": 1, "b": 2});
         let b = json!({"b": 3, "c": 4});
-        let merged = merge_json_objects(&a, &b);
+        let merged = merge_json_objects(&a, &b).unwrap();
         assert_eq!(merged, json!({"a": 1, "b": 3, "c": 4}));
     }
 
@@ -173,20 +197,20 @@ mod tests {
         let b = json!({"b": 2});
         let c = json!({"c": 3});
 
-        let merged = merge_json_objects(&merge_json_objects(&a, &b), &c);
+        let merged = merge_json_objects(&merge_json_objects(&a, &b).unwrap(), &c).unwrap();
         assert_eq!(merged, json!({"a": 1, "b": 2, "c": 3}));
     }
 
     #[test]
     fn test_single_argument() {
         let a = json!({"a": 1});
-        let merged = merge_json_objects(&Value::Object(Map::new()), &a);
+        let merged = merge_json_objects(&Value::Object(Map::new()), &a).unwrap();
         assert_eq!(merged, a);
     }
 
     #[test]
     fn test_empty_input() {
-        assert_eq!(merge_json_objects(&Value::Null, &Value::Null), Value::Null);
+        assert_eq!(merge_json_objects(&Value::Null, &Value::Null).unwrap(), Value::Null);
     }
 
     #[test]
@@ -196,7 +220,7 @@ mod tests {
             json!({"config": {"port": 8080}}),
             json!({"config!": {"production": true}}),
         ];
-        let merged = objs.into_iter().fold(Value::Null, |acc, x| merge_json_objects(&acc, &x));
+        let merged = objs.into_iter().fold(Value::Null, |acc, x| merge_json_objects(&acc, &x).unwrap());
         assert_eq!(merged, json!({"config": {"production": true}}));
     }
 
@@ -221,14 +245,14 @@ mod tests {
                 "address": {"city": "Paris", "country": "France"}
             }
         });
-        assert_eq!(merge_json_objects(&a, &b), expected);
+        assert_eq!(merge_json_objects(&a, &b).unwrap(), expected);
     }
 
     #[test]
     fn test_array_replacement() {
         let a = json!({"items": [1, 2], "tags": ["old"]});
         let b = json!({"items": [3, 4], "tags!": ["new"]});
-        let merged = merge_json_objects(&a, &b);
+        let merged = merge_json_objects(&a, &b).unwrap();
         assert_eq!(merged["items"], json!([3, 4]));
         assert_eq!(merged["tags"], json!(["new"]));
     }
@@ -237,7 +261,7 @@ mod tests {
     fn test_omit_modifier() {
         let a = json!({"keep": 1, "remove_me": 2});
         let b = json!({"remove_me--": 3, "new_key": 4});
-        let merged = merge_json_objects(&a, &b);
+        let merged = merge_json_objects(&a, &b).unwrap();
         assert_eq!(merged, json!({"keep": 1, "new_key": 4}));
     }
 
@@ -261,14 +285,14 @@ mod tests {
                 "plugins": ["advanced"]
             }
         });
-        assert_eq!(merge_json_objects(&a, &b), expected);
+        assert_eq!(merge_json_objects(&a, &b).unwrap(), expected);
     }
 
     #[test]
     fn test_nested_modifiers() {
         let a = json!({"user": {"name": "Alice"}});
         let b = json!({"user!": {"meta--": {"id": 123}, "role": "admin"}});
-        let merged = merge_json_objects(&a, &b);
+        let merged = merge_json_objects(&a, &b).unwrap();
         assert_eq!(merged["user"], json!({"role": "admin"})); // meta-- removed
     }
 
@@ -276,7 +300,7 @@ mod tests {
     fn test_complex_modifiers() {
         let a = json!({"a": {"c": [1, 2]}});
         let b = json!({"a!": {"b": {"new": 2}, "c--": [3, 4]}});
-        let merged = merge_json_objects(&a, &b);
+        let merged = merge_json_objects(&a, &b).unwrap();
         assert_eq!(merged["a"], json!({"b": {"new": 2}})); // c-- removed
     }
 
@@ -292,7 +316,7 @@ mod tests {
                 }
             }
         });
-        let merged = merge_json_objects(&Value::Null, &b);
+        let merged = merge_json_objects(&Value::Null, &b).unwrap();
         assert_eq!(
             merged["level1"]["level2"]["level3"],
             json!({"update": {"b": 2}, "new": "value"})
@@ -331,22 +355,71 @@ mod tests {
                 }
             }
         });
-        assert_eq!(merge_json_objects(&a, &b), expected);
+        assert_eq!(merge_json_objects(&a, &b).unwrap(), expected);
     }
 
     #[test]
     fn test_edge_cases() {
         // Empty objects
-        assert_eq!(merge_json_objects(&json!({}), &json!({})), json!({}));
+        assert_eq!(merge_json_objects(&json!({}), &json!({})).unwrap(), json!({}));
 
         // Null handling
         let a = json!({"key": null});
         let b = json!({"key!": "value"});
-        assert_eq!(merge_json_objects(&a, &b), json!({"key": "value"}));
+        assert_eq!(merge_json_objects(&a, &b).unwrap(), json!({"key": "value"}));
 
         // Type conflicts
         let a = json!({"key": {"nested": 1}});
         let b = json!({"key": [1, 2, 3]});
-        assert_eq!(merge_json_objects(&a, &b), json!({"key": [1, 2, 3]}));
+        assert_eq!(merge_json_objects(&a, &b).unwrap(), json!({"key": [1, 2, 3]}));
+    }
+
+    #[test]
+    fn test_history_append() {
+        let a = json!({"logs-history": [1, 2]});
+        let b = json!({"logs-history": [3, 4]});
+        let merged = merge_json_objects(&a, &b).unwrap();
+        assert_eq!(merged["logs-history"], json!([1, 2, 3, 4]));
+    }
+
+    #[test]
+    fn test_history_append_empty() {
+        let a = json!({"logs-history": []});
+        let b = json!({"logs-history": [1, 2]});
+        let merged = merge_json_objects(&a, &b).unwrap();
+        assert_eq!(merged["logs-history"], json!([1, 2]));
+    }
+
+    #[test]
+    fn test_history_append_new_key() {
+        let a = json!({});
+        let b = json!({"logs-history": [1, 2]});
+        let merged = merge_json_objects(&a, &b).unwrap();
+        assert_eq!(merged["logs-history"], json!([1, 2]));
+    }
+
+    #[test]
+    fn test_history_append_type_mismatch() {
+        let a = json!({"logs-history": "not an array"});
+        let b = json!({"logs-history": [1, 2]});
+        let result = merge_json_objects(&a, &b);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_history_append_wrong_new_type() {
+        let a = json!({"logs-history": [1, 2]});
+        let b = json!({"logs-history": "not an array"});
+        let result = merge_json_objects(&a, &b);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_history_append_with_other_keys() {
+        let a = json!({"logs-history": [1, 2], "count": 2});
+        let b = json!({"logs-history": [3, 4], "count": 4});
+        let merged = merge_json_objects(&a, &b).unwrap();
+        assert_eq!(merged["logs-history"], json!([1, 2, 3, 4]));
+        assert_eq!(merged["count"], 4);
     }
 }
