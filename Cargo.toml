@@ -1,6 +1,6 @@
 [package]
 name = "json_multi_merge"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Nic Wolff <nwolff@hearst.com>"]
 edition = "2021"
 license = "MIT"
