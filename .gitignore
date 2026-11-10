@@ -15,3 +15,7 @@ Cargo.lock
 __pycache__
 
 compose.override.yaml
+
+# Python build and test output
+dist/
+.pytest_cache/

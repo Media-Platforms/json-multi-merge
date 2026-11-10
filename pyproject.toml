@@ -1,13 +1,13 @@
 [build-system]
-requires = ["maturin>=1.4,<2.0"]
+requires = ["maturin>=1.9,<2.0"]
 build-backend = "maturin"
 
 [project]
 name = "json-multi-merge"
-version = "0.3.1"
+version = "0.3.2"
 description = "Rust-powered JSON merging with custom modifiers"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [
     { name = "Nic Wolff", email = "nwolff@hearst.com" }
@@ -15,6 +15,15 @@ authors = [
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
