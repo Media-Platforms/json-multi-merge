@@ -21,6 +21,18 @@ modifiers.
 pip install json-multi-merge
 ```
 
+Requires Python 3.9 or newer. Wheels use the stable ABI (`abi3`) and are tested on Python 3.9
+through 3.14.
+
+## Development
+
+```bash
+pip install "maturin>=1.9,<2.0" pytest
+maturin build --release --out dist && pip install dist/*.whl
+cargo test
+pytest tests
+```
+
 ## Usage
 
 ## Variadic Input
