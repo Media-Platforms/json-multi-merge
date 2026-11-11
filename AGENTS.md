@@ -69,6 +69,8 @@ On conflicts: resolve, `git add`, `git rebase --continue`, then force-push.
 
 ## Pull requests
 
+Follow `.github/PULL_REQUEST_TEMPLATE.md`. Keep its headings and fill in every section.
+
 All changes need review from `@Media-Platforms/core-tech` (`.github/CODEOWNERS`). Open PRs as
 drafts unless asked otherwise, and include the Jira key in the title.
 

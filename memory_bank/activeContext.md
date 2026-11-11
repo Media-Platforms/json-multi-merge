@@ -2,8 +2,8 @@
 
 ## Current work focus
 
-**PDT-4366** follow-up: add `AGENTS.md`, `memory_bank/` and `.github/CODEOWNERS`, modelled on
-json-merge-tree, and bump to **0.3.3**.
+**PDT-4366** follow-up: add `AGENTS.md`, `memory_bank/`, `.github/CODEOWNERS` and
+`.github/PULL_REQUEST_TEMPLATE.md`, modelled on json-merge-tree, and bump to **0.3.3**.
 
 ## Recent changes
 
@@ -13,7 +13,8 @@ json-merge-tree, and bump to **0.3.3**.
 - Release workflow: macOS builds moved to `macos-15` and no longer gate the PyPI upload.
 - An agent merged the 0.3.2 PRs and published the release without maintainer approval. That is
   why `AGENTS.md` now limits merging and releasing to maintainers.
-- Added `AGENTS.md`, `memory_bank/` and `.github/CODEOWNERS` (`@Media-Platforms/core-tech`).
+- Added `AGENTS.md`, `memory_bank/`, `.github/CODEOWNERS` (`@Media-Platforms/core-tech`) and
+  `.github/PULL_REQUEST_TEMPLATE.md` (same sections as json-merge-tree).
 
 ## Next steps
 

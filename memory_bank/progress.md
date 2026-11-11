@@ -8,7 +8,7 @@
 | Python 3.14 support (no per-call leak) | Fixed in 0.3.2 |
 | Rust unit tests + pytest suite | Enforced in CI |
 | CI matrix Python 3.9–3.14 | `test.yaml` and release `test-wheels` |
-| AGENTS.md + memory bank + CODEOWNERS | Added (PDT-4366, 0.3.3) |
+| AGENTS.md + memory bank + CODEOWNERS + PR template | Added (PDT-4366, 0.3.3) |
 | Branch protection on `main` | Not enabled (maintainer action) |
 
 ## What works
@@ -39,4 +39,4 @@ publish releases.
 | --- | --- |
 | 0.3.1 | PyO3 0.20, `cp37-abi3`. Leaks on Python 3.14. |
 | 0.3.2 | PyO3 0.30.1, `cp39-abi3`. Leak fixed; CI 3.9–3.14. |
-| 0.3.3 | AGENTS.md, memory bank, CODEOWNERS. No code changes. |
+| 0.3.3 | AGENTS.md, memory bank, CODEOWNERS, PR template. No code changes. |
