@@ -3,7 +3,8 @@
 ## Current work focus
 
 **PDT-4366** follow-up: add `AGENTS.md`, `memory_bank/`, `.github/CODEOWNERS` and
-`.github/PULL_REQUEST_TEMPLATE.md`, modelled on json-merge-tree, and bump to **0.3.3**.
+`.github/PULL_REQUEST_TEMPLATE.md`, modelled on json-merge-tree. Package version stays at
+**0.3.2**; this is docs and repo metadata only, not a separate release.
 
 ## Recent changes
 
@@ -14,11 +15,12 @@
 - An agent merged the 0.3.2 PRs and published the release without maintainer approval. That is
   why `AGENTS.md` now limits merging and releasing to maintainers.
 - Added `AGENTS.md`, `memory_bank/`, `.github/CODEOWNERS` (`@Media-Platforms/core-tech`) and
-  `.github/PULL_REQUEST_TEMPLATE.md` (same sections as json-merge-tree).
+  `.github/PULL_REQUEST_TEMPLATE.md` (same sections as json-merge-tree, without the extra
+  "Requires Unmerged Dependencies" label note).
 
 ## Next steps
 
-1. A maintainer reviews and merges the 0.3.3 PR, then publishes GitHub release `0.3.3`.
+1. A maintainer reviews and merges the docs/guardrails PR (version remains 0.3.2).
 2. Enable branch protection on `main` with "Require review from Code Owners", so that
    `CODEOWNERS` actually blocks merges. json-merge-tree's `main` is protected; this repo's was
    not.
@@ -26,6 +28,6 @@
 
 ## Active decisions
 
-- **0.3.3 contains no code changes.** It adds docs and repo metadata only. Merge behaviour and
-  wheels are identical to 0.3.2.
+- **No version bump for the guardrails PR.** Docs and agent metadata only; `Cargo.toml` and
+  `pyproject.toml` stay at `0.3.2`.
 - **Agents prepare releases but never publish them** (see `AGENTS.md`).
