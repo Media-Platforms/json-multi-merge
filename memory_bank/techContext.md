@@ -40,6 +40,9 @@ pytest tests                    # behaviour + leak regression tests
   The `test-wheels` job runs pytest against the Linux x86_64 wheel on 3.9–3.14. `Release`
   uploads to public PyPI with `PYPI_API_TOKEN`. It waits on linux, windows, sdist and
   test-wheels, but not on macOS, because the org runner policy has rejected some macOS labels.
+- The `python` (test.yaml) and `test-wheels` (release.yaml) matrices run on `ubuntu-24.04`, not
+  `ubuntu-latest`. `ubuntu-latest` is Ubuntu 26.04, and `actions/setup-python` has no Python 3.9
+  build for it. Move them back to `ubuntu-latest` only once 3.9 is dropped from the matrix.
 
 ## Dependency management
 
